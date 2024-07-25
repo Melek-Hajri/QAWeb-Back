@@ -21,12 +21,15 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import tn.enicarthage.dtos.QuestionDTO;
 
 @Entity
 @Data
 @Table(name = "questions")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Question {
 
 	@Id
@@ -40,6 +43,8 @@ public class Question {
 	String body;
 	
 	Date createdDate;
+	
+	Integer voteCount = 0;
 	
 	@ElementCollection
 	@CollectionTable(name = "question_tags", joinColumns = @JoinColumn(name = "question_id"))
@@ -59,6 +64,7 @@ public class Question {
 		questionDTO.setTags(tags);
 		questionDTO.setTitle(title);
 		questionDTO.setBody(body);
+		questionDTO.setVoteCount(voteCount);
 		questionDTO.setUserId(user.getId());
 		questionDTO.setUsername(user.getName());
 		questionDTO.setCreatedDate(createdDate);

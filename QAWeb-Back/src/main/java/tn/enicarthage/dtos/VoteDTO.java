@@ -3,16 +3,19 @@ package tn.enicarthage.dtos;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import tn.enicarthage.enums.VoteType;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationResponse {
+public class VoteDTO {
 	
-	private String jwtToken;
-
-	public AuthenticationResponse(String jwtToken) {
-		super();
-		this.jwtToken = jwtToken;
-	}
+	Long id;
 	
+	VoteType voteType;
+	
+	Long userId;
+	
+	Long questionId;
+	
+	Long answerId;
 }

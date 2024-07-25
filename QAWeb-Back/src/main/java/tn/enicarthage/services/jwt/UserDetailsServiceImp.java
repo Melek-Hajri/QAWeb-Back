@@ -18,9 +18,6 @@ public class UserDetailsServiceImp implements UserDetailsService{
 	@Autowired
 	private UserRepository userRepo;
 	
-	@Autowired
-	private UserDetailsService userDetailsService;
-	
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		Optional<User> optionalUser = this.userRepo.findFirstByEmail(email);

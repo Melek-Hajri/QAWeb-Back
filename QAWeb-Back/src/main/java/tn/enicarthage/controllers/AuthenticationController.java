@@ -18,26 +18,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
 import tn.enicarthage.dtos.AuthenticationRequest;
 import tn.enicarthage.entities.User;
 import tn.enicarthage.repositories.UserRepository;
+import tn.enicarthage.services.answer.AnswerService;
 import tn.enicarthage.services.utils.JwtUtil;
 
 
 
 @RestController
+@RequiredArgsConstructor
 public class AuthenticationController {
-	@Autowired
-	private AuthenticationManager authenticationManager;
 
-	@Autowired
-	private UserDetailsService userDetailsService;
-	
-	@Autowired
-	private JwtUtil jwtUtil;
-	
-	@Autowired
-	private UserRepository userRepo;
+	private final AuthenticationManager authenticationManager;
+
+	private final UserDetailsService userDetailsService;
+
+	private final JwtUtil jwtUtil;
+
+	private final UserRepository userRepo;
 	
 	public static final String TOKEN_PREFIX = "Bearer ";
 	

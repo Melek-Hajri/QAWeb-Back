@@ -8,22 +8,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
-
+import lombok.RequiredArgsConstructor;
 import tn.enicarthage.dtos.SignupRequest;
 import tn.enicarthage.dtos.UserDTO;
 import tn.enicarthage.repositories.UserRepository;
 import tn.enicarthage.services.User.UserServiceImp;
+import tn.enicarthage.services.answer.AnswerService;
 
 @RestController
 @RequestMapping("/signup")
+@RequiredArgsConstructor
 public class SignUpController {
-	
-	@Autowired
-	private UserServiceImp userService;
-	
-	@Autowired
-	private UserRepository userRepo;
+
+	private final UserServiceImp userService;
+
+	private final UserRepository userRepo;
 	
 	@PostMapping
 	public ResponseEntity<?> createUser(@RequestBody SignupRequest signupRequest) {

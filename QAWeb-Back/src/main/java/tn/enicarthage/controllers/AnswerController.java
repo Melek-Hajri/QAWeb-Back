@@ -7,19 +7,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
 import tn.enicarthage.dtos.AnswerDTO;
 import tn.enicarthage.services.answer.AnswerService;
 
 @RestController
 @RequestMapping("/api/answer")
+@RequiredArgsConstructor
 public class AnswerController {
 
 	
 	private final AnswerService answerService;
-	
-	private AnswerController(AnswerService answerService) {
-		this.answerService = answerService;
-	}
 	
 	@PostMapping
 	public ResponseEntity<?> addAnswer(@RequestBody AnswerDTO answerDTO) {

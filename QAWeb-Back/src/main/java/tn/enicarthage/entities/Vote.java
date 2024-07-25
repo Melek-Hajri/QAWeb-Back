@@ -1,15 +1,11 @@
 package tn.enicarthage.entities;
 
-import java.util.Date;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
 import org.hibernate.annotations.OnDelete;
@@ -20,24 +16,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import tn.enicarthage.dtos.AnswerDTO;
+import tn.enicarthage.dtos.VoteDTO;
+import tn.enicarthage.enums.VoteType;
 
 @Entity
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Answer {
-
+public class Vote {
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	Long id;
 	
-	@Lob
-	@Column(name = "body", length = 512)
-	String body;
-	
-	Date createdDate;
-	
-	Integer voteCount = 0;
+	VoteType voteType;
 	
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", nullable = false)
@@ -45,21 +36,28 @@ public class Answer {
 	@JsonIgnore
 	User user;
 	
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "question_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY, optional = true)
+	@JoinColumn(name = "question_id", nullable = true)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JsonIgnore
 	Question question;
+	
+	@ManyToOne(fetch = FetchType.LAZY, optional = true)
+	@JoinColumn(name = "answer_id", nullable = true)
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnore
+	Answer answer;
 
-	public AnswerDTO getAnswerDTO() {
-		AnswerDTO answerDTO = new AnswerDTO();
-		answerDTO.setId(id);
-		answerDTO.setBody(body);
-		answerDTO.setCreatedDate(createdDate);
-		answerDTO.setVoteCount(voteCount);
-		answerDTO.setUserId(user.getId());
-		answerDTO.setQuestionId(question.getId());
-		answerDTO.setUsername(user.getName());
-		return answerDTO;
+	public VoteDTO getVoteDTO() {
+		VoteDTO voteDTO = new VoteDTO();
+		voteDTO.setId(id);
+		voteDTO.setVoteType(voteType);
+		if(answer != null)
+			voteDTO.setAnswerId(answer.getId());
+		if(question != null)
+			voteDTO.setQuestionId(question.getId());
+		voteDTO.setUserId(user.getId());
+		return voteDTO;
 	}
+	
 }

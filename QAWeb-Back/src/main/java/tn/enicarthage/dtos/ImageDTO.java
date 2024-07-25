@@ -6,13 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AuthenticationResponse {
-	
-	private String jwtToken;
+public class ImageDTO {
 
-	public AuthenticationResponse(String jwtToken) {
-		super();
-		this.jwtToken = jwtToken;
-	}
-	
+	String[] image;
 }

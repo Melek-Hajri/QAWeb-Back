@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import tn.enicarthage.dtos.AnswerDTO;
 import tn.enicarthage.entities.Answer;
 import tn.enicarthage.entities.Question;
@@ -14,9 +15,9 @@ import tn.enicarthage.repositories.QuestionRepository;
 import tn.enicarthage.repositories.UserRepository;
 
 @Service
+@RequiredArgsConstructor
 public class AnswerServiceImp implements AnswerService{
 
-	
 	private final UserRepository userRepository;
 	
 	private final QuestionRepository questionRepository;
@@ -24,16 +25,6 @@ public class AnswerServiceImp implements AnswerService{
 	private final AnswerRepository answerRepository;
 	
 	
-	
-	public AnswerServiceImp(UserRepository userRepository, QuestionRepository questionRepository,
-			AnswerRepository answerRepository) {
-		this.userRepository = userRepository;
-		this.questionRepository = questionRepository;
-		this.answerRepository = answerRepository;
-	}
-
-
-
 	@Override
 	public AnswerDTO postAnswer(AnswerDTO answerDTO) {
 

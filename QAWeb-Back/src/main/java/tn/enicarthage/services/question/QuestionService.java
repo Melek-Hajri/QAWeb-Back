@@ -12,4 +12,6 @@ public interface QuestionService {
 
 	SingleQuestionDTO getQuestionById(Long questionId);
 
+	AllQuestionsResponseDTO getQuestionsByUserId(Long userId, int pageNumber);
+
 }

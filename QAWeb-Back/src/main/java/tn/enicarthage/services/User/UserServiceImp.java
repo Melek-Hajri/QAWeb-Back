@@ -6,16 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import tn.enicarthage.dtos.SignupRequest;
 import tn.enicarthage.dtos.UserDTO;
 import tn.enicarthage.entities.User;
 import tn.enicarthage.repositories.UserRepository;
+import tn.enicarthage.services.answer.AnswerService;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImp implements UserService{
 
-	@Autowired
-    private UserRepository userRepo;
+    private final UserRepository userRepo;
 	
 	@Override
 	@Transactional

@@ -1,6 +1,8 @@
 package tn.enicarthage.services.question;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -10,24 +12,33 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
 import tn.enicarthage.dtos.AllQuestionsResponseDTO;
+import tn.enicarthage.dtos.AnswerDTO;
 import tn.enicarthage.dtos.QuestionDTO;
 import tn.enicarthage.dtos.SingleQuestionDTO;
+import tn.enicarthage.entities.Answer;
 import tn.enicarthage.entities.Question;
 import tn.enicarthage.entities.User;
+import tn.enicarthage.repositories.AnswerRepository;
+import tn.enicarthage.repositories.ImageRepository;
 import tn.enicarthage.repositories.QuestionRepository;
 import tn.enicarthage.repositories.UserRepository;
+import tn.enicarthage.services.answer.AnswerService;
 
 @Service
+@RequiredArgsConstructor
 public class QuestionServiceImp implements QuestionService{
 
 	public static final int SEARCH_RESULT_PER_PAGE = 5;
 	
-	@Autowired
-	private QuestionRepository questionRepository;
-	
-	@Autowired
-	private UserRepository userRepository;
+	private final QuestionRepository questionRepository;
+
+	private final UserRepository userRepository;
+
+	private final AnswerRepository answerRepository;
+
+	private final ImageRepository imageRepository;
 	
 	@Override
 	public QuestionDTO addQuestion(QuestionDTO questionDTO) {
@@ -75,9 +86,37 @@ public class QuestionServiceImp implements QuestionService{
 	@Override
 	public SingleQuestionDTO getQuestionById(Long questionId) {
 		Optional<Question> optionalQuestion = questionRepository.findById(questionId);
-		SingleQuestionDTO singleQuestionDTO = new SingleQuestionDTO();
-		optionalQuestion.ifPresent(question -> singleQuestionDTO.setQuestionDTO(question.getQuestionDTO()));
-		return singleQuestionDTO;
+		if(optionalQuestion.isPresent()) {
+			SingleQuestionDTO singleQuestionDTO = new SingleQuestionDTO();
+			List<AnswerDTO> answerDTOList = new ArrayList<>();
+			singleQuestionDTO.setQuestionDTO(optionalQuestion.get().getQuestionDTO());
+			singleQuestionDTO.getQuestionDTO().setFiles(imageRepository.findAllByQuestionId(questionId));
+			List<Answer> answerList = answerRepository.findAllByQuestionId(questionId);
+			for(Answer answer : answerList) {
+				AnswerDTO answerDTO = answer.getAnswerDTO();
+				answerDTO.setFiles(imageRepository.findAllByAnswerId(answerDTO.getId()));
+				answerDTOList.add(answerDTO);
+			}
+			singleQuestionDTO.setAnswerDTOList(answerDTOList);
+			return singleQuestionDTO;
+		}
+		return null;
 	}
+
+
+	@Override
+	public AllQuestionsResponseDTO getQuestionsByUserId(Long userId, int pageNumber) {
+		Pageable paging = PageRequest.of(pageNumber, SEARCH_RESULT_PER_PAGE);
+		Page<Question> questionPage = questionRepository.findAllByUserId(userId, paging);
+		
+		AllQuestionsResponseDTO allQuestionsResponseDTO = new AllQuestionsResponseDTO();
+		allQuestionsResponseDTO.setQuestionDTOList(questionPage.getContent().stream().map(Question::getQuestionDTO).collect(Collectors.toList()));
+		allQuestionsResponseDTO.setPageNumber(questionPage.getPageable().getPageNumber());
+		allQuestionsResponseDTO.setTotalPages(questionPage.getTotalPages());
+		return allQuestionsResponseDTO;
+	}
+	
+	
+	
 
 }
