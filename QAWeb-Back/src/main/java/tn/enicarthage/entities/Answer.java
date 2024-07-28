@@ -1,7 +1,9 @@
 package tn.enicarthage.entities;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -37,6 +40,8 @@ public class Answer {
 	
 	Date createdDate;
 	
+	boolean approved = false;
+	
 	Integer voteCount = 0;
 	
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -50,12 +55,21 @@ public class Answer {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JsonIgnore
 	Question question;
+	
+	@OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
+	@JsonIgnore
+	List<Vote> voteList;
+	
+	@OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
+	@JsonIgnore
+	List<Comment> commentList;
 
 	public AnswerDTO getAnswerDTO() {
 		AnswerDTO answerDTO = new AnswerDTO();
 		answerDTO.setId(id);
 		answerDTO.setBody(body);
 		answerDTO.setCreatedDate(createdDate);
+		answerDTO.setApproved(approved);
 		answerDTO.setVoteCount(voteCount);
 		answerDTO.setUserId(user.getId());
 		answerDTO.setQuestionId(question.getId());

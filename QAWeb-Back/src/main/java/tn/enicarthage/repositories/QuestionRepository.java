@@ -12,4 +12,10 @@ public interface QuestionRepository extends JpaRepository<Question, Long>{
 
 	Page<Question> findAllByUserId(Long userId, Pageable paging);
 
+	Page<Question> findAllByTitleContaining(String title, Pageable pageable);
+
+	Page<Question> findAllByOrderByCreatedDateDesc(Pageable paging);
+	
+	Page<Question> findAllByOrderByVoteCountDesc(Pageable paging);
+
 }

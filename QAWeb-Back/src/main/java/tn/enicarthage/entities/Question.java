@@ -3,6 +3,7 @@ package tn.enicarthage.entities;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -14,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.OnDelete;
@@ -46,6 +48,8 @@ public class Question {
 	
 	Integer voteCount = 0;
 	
+	boolean solved = false;
+	
 	@ElementCollection
 	@CollectionTable(name = "question_tags", joinColumns = @JoinColumn(name = "question_id"))
 	@Column(name = "tag")
@@ -57,6 +61,9 @@ public class Question {
 	@JsonIgnore
 	User user;
 	
+	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+	@JsonIgnore
+	List<Vote> voteList;
 	
 	public QuestionDTO getQuestionDTO() {
 		QuestionDTO questionDTO = new QuestionDTO();
@@ -64,6 +71,7 @@ public class Question {
 		questionDTO.setTags(tags);
 		questionDTO.setTitle(title);
 		questionDTO.setBody(body);
+		questionDTO.setSolved(solved);
 		questionDTO.setVoteCount(voteCount);
 		questionDTO.setUserId(user.getId());
 		questionDTO.setUsername(user.getName());

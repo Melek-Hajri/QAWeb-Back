@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 import tn.enicarthage.dtos.AllQuestionsResponseDTO;
 import tn.enicarthage.dtos.QuestionDTO;
+import tn.enicarthage.dtos.QuestionSearchResponseDTO;
 import tn.enicarthage.dtos.SingleQuestionDTO;
 import tn.enicarthage.services.answer.AnswerService;
 import tn.enicarthage.services.question.QuestionService;
@@ -33,9 +34,9 @@ public class QuestionController {
         return ResponseEntity.ok(allQuestionsResponseDTO);
     }
     
-    @GetMapping("/question/{questionId}")
-    public ResponseEntity<?> getQuestionById(@PathVariable Long questionId) {
-    	SingleQuestionDTO singleQuestionDTO = questionService.getQuestionById(questionId);
+    @GetMapping("/question/{questionId}/{userId}")
+    public ResponseEntity<?> getQuestionById(@PathVariable Long questionId, @PathVariable Long userId) {
+    	SingleQuestionDTO singleQuestionDTO = questionService.getQuestionById(questionId, userId);
     	if(singleQuestionDTO == null) {
     		return ResponseEntity.notFound().build();
     	} 
@@ -46,5 +47,35 @@ public class QuestionController {
     public ResponseEntity<AllQuestionsResponseDTO> getQuestionsByUserId(@PathVariable Long userId, @PathVariable int pageNumber) {
         AllQuestionsResponseDTO allQuestionsResponseDTO = questionService.getQuestionsByUserId(userId, pageNumber);
         return ResponseEntity.ok(allQuestionsResponseDTO);
+    }
+    
+    @GetMapping("/search/{title}/{pageNum}")
+    public ResponseEntity<?> searchQuestionByTitle(@PathVariable int pageNum, @PathVariable String title) {
+    	
+    	QuestionSearchResponseDTO questionSearchResponseDTO = questionService.searchQuestionByTitle(title, pageNum);
+    	if(questionSearchResponseDTO == null) {
+    		return ResponseEntity.notFound().build();
+    	}
+    	return ResponseEntity.ok(questionSearchResponseDTO);
+    }
+    
+    @GetMapping("/questions/latest/{pageNum}")
+    public ResponseEntity<?> getLatestQuestions(@PathVariable int pageNum) {
+    	
+    	QuestionSearchResponseDTO questionSearchResponseDTO = questionService.getLatestQuestions(pageNum);
+    	if(questionSearchResponseDTO == null) {
+    		return ResponseEntity.notFound().build();
+    	}
+    	return ResponseEntity.ok(questionSearchResponseDTO);
+    }
+    
+    @GetMapping("/questions/highest_voted/{pageNum}")
+    public ResponseEntity<?> getHighestVotedQuestions(@PathVariable int pageNum) {
+    	
+    	QuestionSearchResponseDTO questionSearchResponseDTO = questionService.getHighestVotedQuestions(pageNum);
+    	if(questionSearchResponseDTO == null) {
+    		return ResponseEntity.notFound().build();
+    	}
+    	return ResponseEntity.ok(questionSearchResponseDTO);
     }
 }

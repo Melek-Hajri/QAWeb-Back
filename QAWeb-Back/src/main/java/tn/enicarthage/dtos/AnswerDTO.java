@@ -24,7 +24,13 @@ public class AnswerDTO {
 	
 	Date createdDate;
 	
+	boolean approved;
+	
 	String username;
 	
 	List<Image> files;
+	
+	int voted;
+	
+	List<CommentDTO> commentDTOList;
 }
