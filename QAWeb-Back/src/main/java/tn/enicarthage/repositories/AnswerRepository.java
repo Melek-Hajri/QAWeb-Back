@@ -11,5 +11,7 @@ import tn.enicarthage.entities.Answer;
 public interface AnswerRepository extends JpaRepository<Answer, Long>{
 
 	List<Answer> findAllByQuestionId(Long questionId);
+	
+	List<Answer> findAllByUserId(Long userId);
 
 }

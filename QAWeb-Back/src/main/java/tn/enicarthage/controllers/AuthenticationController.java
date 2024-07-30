@@ -55,13 +55,14 @@ public class AuthenticationController {
 		}
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
 		
-		Optional<User> optionalUser = this.userRepo.findFirstByEmail(userDetails.getUsername());
+		Optional<User> optionalUser = this.userRepo.findFirstByEmailAndIsActive(userDetails.getUsername(), true);
 		
 		final String jwt = jwtUtil.generateToken(userDetails);
 		
 		if(optionalUser.isPresent()) {
 			response.getWriter().write(new JSONObject()
 					.put("userId", optionalUser.get().getId())
+					.put("isAdmin", optionalUser.get().isAdmin())
 					.toString());
 		}
 		

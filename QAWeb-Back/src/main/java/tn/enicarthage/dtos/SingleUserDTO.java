@@ -1,6 +1,6 @@
 package tn.enicarthage.dtos;
 
-import java.util.Date;
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.Data;
@@ -8,17 +8,14 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserDTO {
+public class SingleUserDTO {
 	
-	Long id;
+	UserDTO userDTO;
 	
-	String name;
+	List<QuestionDTO> questionDTOList;
 	
-	String email;
+	List<AnswerDTO> answerDTOList;
 	
-	Date joinedDate;
-	
-	boolean isAdmin;
-	
-	boolean isActive;
+	List<CommentDTO> commentDTOList;
+
 }

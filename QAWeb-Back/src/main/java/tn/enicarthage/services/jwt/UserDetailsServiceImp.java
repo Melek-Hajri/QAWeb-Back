@@ -20,7 +20,7 @@ public class UserDetailsServiceImp implements UserDetailsService{
 	
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		Optional<User> optionalUser = this.userRepo.findFirstByEmail(email);
+		Optional<User> optionalUser = this.userRepo.findFirstByEmailAndIsActive(email, true);
 		if(!optionalUser.isPresent())
 			throw new UsernameNotFoundException("Email: " + email + " not found");
 		return new org.springframework.security.core.userdetails.User(optionalUser.get().getEmail(), optionalUser.get().getPassword(), new ArrayList<>());

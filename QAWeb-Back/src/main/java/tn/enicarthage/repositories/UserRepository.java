@@ -11,6 +11,6 @@ import tn.enicarthage.entities.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>{
 
-	Optional<User> findFirstByEmail(String email);
+	Optional<User> findFirstByEmailAndIsActive(String email, boolean isActive);
 
 }

@@ -20,6 +20,8 @@ public class AnswerDTO {
 	
 	Long questionId;
 	
+	String questionTitle;
+	
 	Long userId;
 	
 	Date createdDate;

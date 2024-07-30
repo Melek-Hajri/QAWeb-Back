@@ -155,13 +155,13 @@ public class QuestionServiceImp implements QuestionService{
 
 
 	@Override
-	public QuestionSearchResponseDTO searchQuestionByTitle(String title, int pageNum) {
+	public QuestionSearchResponseDTO searchQuestionByTitleAndTag(String query, int pageNum) {
 		Pageable pageable = PageRequest.of(pageNum, SEARCH_RESULT_PER_PAGE);
 		Page<Question> questionPage;
-		if(title == null || title.equals("null")) {
+		if(query == null || query.equals("null")) {
 			questionPage = questionRepository.findAll(pageable);
 		} else {
-			questionPage = questionRepository.findAllByTitleContaining(title, pageable);
+			questionPage = questionRepository.findByTitleContainingOrTag(query, pageable);
 		}
 		QuestionSearchResponseDTO questionSearchResponseDTO = new QuestionSearchResponseDTO();
 		questionSearchResponseDTO.setQuestionDTOList(questionPage.stream().map(Question::getQuestionDTO).collect(Collectors.toList()));

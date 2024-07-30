@@ -15,9 +15,9 @@ public interface QuestionService {
 
 	SingleQuestionDTO getQuestionById(Long questionId, Long userId);
 
-	QuestionSearchResponseDTO searchQuestionByTitle(String title, int pageNum);
-
 	QuestionSearchResponseDTO getLatestQuestions(int pageNum);
 
 	QuestionSearchResponseDTO getHighestVotedQuestions(int pageNum);
+
+	QuestionSearchResponseDTO searchQuestionByTitleAndTag(String query, int pageNum);
 }

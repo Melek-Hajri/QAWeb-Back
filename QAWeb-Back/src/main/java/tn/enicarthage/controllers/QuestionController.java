@@ -49,10 +49,10 @@ public class QuestionController {
         return ResponseEntity.ok(allQuestionsResponseDTO);
     }
     
-    @GetMapping("/search/{title}/{pageNum}")
-    public ResponseEntity<?> searchQuestionByTitle(@PathVariable int pageNum, @PathVariable String title) {
+    @GetMapping("/search/{query}/{pageNum}")
+    public ResponseEntity<?> searchQuestionByTitleAndTag(@PathVariable int pageNum, @PathVariable String query) {
     	
-    	QuestionSearchResponseDTO questionSearchResponseDTO = questionService.searchQuestionByTitle(title, pageNum);
+    	QuestionSearchResponseDTO questionSearchResponseDTO = questionService.searchQuestionByTitleAndTag(query, pageNum);
     	if(questionSearchResponseDTO == null) {
     		return ResponseEntity.notFound().build();
     	}

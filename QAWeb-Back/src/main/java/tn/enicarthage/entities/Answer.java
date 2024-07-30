@@ -73,6 +73,7 @@ public class Answer {
 		answerDTO.setVoteCount(voteCount);
 		answerDTO.setUserId(user.getId());
 		answerDTO.setQuestionId(question.getId());
+		answerDTO.setQuestionTitle(question.getTitle());
 		answerDTO.setUsername(user.getName());
 		return answerDTO;
 	}
