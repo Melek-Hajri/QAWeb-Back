@@ -23,10 +23,14 @@ public class UserController {
 	
 	private final UserService userService;
 	
-	@GetMapping("/users/{pageNumber}")
-    public ResponseEntity<AllUsersResponseDTO> getAllUsers(@PathVariable int pageNumber) {
-        AllUsersResponseDTO allUsersResponseDTO = userService.getAllUsers(pageNumber);
-        return ResponseEntity.ok(allUsersResponseDTO);
+	@GetMapping("/users/{pageNumber}/{userId}")
+    public ResponseEntity<?> getAllUsers(@PathVariable int pageNumber, @PathVariable Long userId) {
+        AllUsersResponseDTO allUsersResponseDTO = userService.getAllUsers(pageNumber, userId);
+        
+        if(allUsersResponseDTO == null) {
+    		return ResponseEntity.badRequest().body("You have no access privileges!");
+    	} 
+    	return ResponseEntity.ok(allUsersResponseDTO);
     }
     
     @GetMapping("/user/{userId}")

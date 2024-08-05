@@ -9,7 +9,7 @@ public interface UserService {
 
 	UserDTO createUser(SignupRequest signupDTO);
 
-	AllUsersResponseDTO getAllUsers(int pageNumber);
+	AllUsersResponseDTO getAllUsers(int pageNumber, Long userId);
 
 	SingleUserDTO getUserById(Long userId);
 

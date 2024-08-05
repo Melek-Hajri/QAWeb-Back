@@ -24,10 +24,12 @@ import tn.enicarthage.dtos.SingleUserDTO;
 import tn.enicarthage.dtos.UserDTO;
 import tn.enicarthage.entities.Answer;
 import tn.enicarthage.entities.Comment;
+import tn.enicarthage.entities.ConfirmationToken;
 import tn.enicarthage.entities.Question;
 import tn.enicarthage.entities.User;
 import tn.enicarthage.repositories.AnswerRepository;
 import tn.enicarthage.repositories.CommentRepository;
+import tn.enicarthage.repositories.ConfirmationTokenRepository;
 import tn.enicarthage.repositories.ImageRepository;
 import tn.enicarthage.repositories.QuestionRepository;
 import tn.enicarthage.repositories.UserRepository;
@@ -48,21 +50,39 @@ public class UserServiceImp implements UserService{
     private final CommentRepository commentRepository;
     
     private final ImageRepository imageRepository;
+    
+    private final ConfirmationTokenRepository confirmationTokenRepository;
+    
+    private final EmailServiceImp emailService;
 	
-	@Override
-	@Transactional
-	public UserDTO createUser(SignupRequest signupDTO) {
-		User user = new User();
-		user.setEmail(signupDTO.getEmail());
-		user.setName(signupDTO.getName());
-		user.setPassword(new BCryptPasswordEncoder().encode(signupDTO.getPassword()));
-		user.setJoinedDate(new Date());
-		//user.setRole(RoleType.SimpleUser);
-		User createdUser = userRepository.save(user);
-		UserDTO createdUserDTO = new UserDTO();
-		createdUserDTO.setId(createdUser.getId());
-		return createdUserDTO;
-	}
+    @Override
+    @Transactional
+    public UserDTO createUser(SignupRequest signupDTO) {
+        User user = new User();
+        user.setEmail(signupDTO.getEmail());
+        user.setName(signupDTO.getName());
+        user.setPassword(new BCryptPasswordEncoder().encode(signupDTO.getPassword()));
+        user.setJoinedDate(new Date());
+        user.setActive(false); // User is not active until email confirmation
+
+        User createdUser = userRepository.save(user);
+
+        // Create and save confirmation token
+        ConfirmationToken confirmationToken = new ConfirmationToken(createdUser);
+        confirmationTokenRepository.save(confirmationToken);
+
+        // Send confirmation email
+        String confirmationLink = "http://localhost:8085/confirm-account?token=" + confirmationToken.getToken();
+        emailService.sendEmail(
+            user.getEmail(),
+            "Email Confirmation",
+            "To confirm your account, please click the link: " + confirmationLink
+        );
+
+        UserDTO createdUserDTO = new UserDTO();
+        createdUserDTO.setId(createdUser.getId());
+        return createdUserDTO;
+    }
 
 	public boolean hasUserWithEmail(String email) {
 		return userRepository.findFirstByEmailAndIsActive(email, true).isPresent();
@@ -83,18 +103,22 @@ public class UserServiceImp implements UserService{
     }
 
 	@Override
-    public AllUsersResponseDTO getAllUsers(int pageNumber) {
+    public AllUsersResponseDTO getAllUsers(int pageNumber, Long userId) {
     	
-    	Pageable paging = PageRequest.of(pageNumber, SEARCH_RESULT_PER_PAGE);
-    	Page<User> userPage = userRepository.findAll(paging);
+		User user = userRepository.findById(userId).get();
 		
-    	AllUsersResponseDTO allUsersResponseDTO = new AllUsersResponseDTO();
-    	allUsersResponseDTO.setUserDTOList(userPage.getContent().stream().map(User::getUserDTO).collect(Collectors.toList()));
-    	allUsersResponseDTO.setPageNumber(userPage.getPageable().getPageNumber());
-    	allUsersResponseDTO.setTotalPages(userPage.getTotalPages());
-    	allUsersResponseDTO.setTotalElements(userPage.getTotalElements());
+		if(user.isAdmin()) {
+			Pageable paging = PageRequest.of(pageNumber, SEARCH_RESULT_PER_PAGE);
+	    	Page<User> userPage = userRepository.findAll(paging);
+			
+	    	AllUsersResponseDTO allUsersResponseDTO = new AllUsersResponseDTO();
+	    	allUsersResponseDTO.setUserDTOList(userPage.getContent().stream().map(User::getUserDTO).collect(Collectors.toList()));
+	    	allUsersResponseDTO.setPageNumber(userPage.getPageable().getPageNumber());
+	    	allUsersResponseDTO.setTotalPages(userPage.getTotalPages());
+	    	allUsersResponseDTO.setTotalElements(userPage.getTotalElements());
 
-		return allUsersResponseDTO;
+			return allUsersResponseDTO;
+		} else return null;	
     }
 
 	@Override

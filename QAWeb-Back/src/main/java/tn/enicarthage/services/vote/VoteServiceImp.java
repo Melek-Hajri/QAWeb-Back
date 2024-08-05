@@ -79,4 +79,45 @@ public class VoteServiceImp implements VoteService{
             throw new IOException("User not found");
         }
 	}
+
+	@Override
+	public void cancelQuestionVote(Long userId, Long questionId) {
+		
+		User user = userRepository.findById(userId).get();
+		Question question = questionRepository.findById(questionId).get();
+		
+		Optional<Vote> vote = voteRepository.findByUserAndQuestion(user, question);
+		
+		if(vote.isPresent()) {
+			if(vote.get().getVoteType() == VoteType.UPVOTE) {
+				question.setVoteCount(question.getVoteCount() - 1);
+			} else {
+				question.setVoteCount(question.getVoteCount() + 1);
+			}
+			voteRepository.deleteById(vote.get().getId());
+			questionRepository.save(question);
+		}
+		
+		
+	}
+
+	@Override
+	public void cancelAnswerVote(Long userId, Long answerId) {
+		
+		User user = userRepository.findById(userId).get();
+		Answer answer = answerRepository.findById(answerId).get();
+		
+		Optional<Vote> vote = voteRepository.findByUserAndAnswer(user, answer);
+		
+		if(vote.isPresent()) {
+			if(vote.get().getVoteType() == VoteType.UPVOTE) {
+				answer.setVoteCount(answer.getVoteCount() - 1);
+			} else {
+				answer.setVoteCount(answer.getVoteCount() + 1);
+			}
+			voteRepository.deleteById(vote.get().getId());
+			answerRepository.save(answer);
+		}
+		
+	}
 }
