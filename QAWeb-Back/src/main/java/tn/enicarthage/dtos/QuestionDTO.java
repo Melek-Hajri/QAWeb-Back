@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import tn.enicarthage.entities.Image;
+import tn.enicarthage.entities.Question;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import tn.enicarthage.dtos.AllQuestionsResponseDTO;
+import tn.enicarthage.dtos.CommentDTO;
 import tn.enicarthage.dtos.QuestionDTO;
 import tn.enicarthage.dtos.QuestionSearchResponseDTO;
 import tn.enicarthage.dtos.SingleQuestionDTO;
@@ -50,9 +51,9 @@ public class QuestionController {
     }
     
     @GetMapping("/search/{query}/{pageNum}")
-    public ResponseEntity<?> searchQuestionByTitleAndTag(@PathVariable int pageNum, @PathVariable String query) {
+    public ResponseEntity<?> searchQuestionByTitleAndTagAndBody(@PathVariable int pageNum, @PathVariable String query) {
     	
-    	QuestionSearchResponseDTO questionSearchResponseDTO = questionService.searchQuestionByTitleAndTag(query, pageNum);
+    	QuestionSearchResponseDTO questionSearchResponseDTO = questionService.searchQuestionByTitleAndTagAndBody(query, pageNum);
     	if(questionSearchResponseDTO == null) {
     		return ResponseEntity.notFound().build();
     	}
@@ -78,4 +79,11 @@ public class QuestionController {
     	}
     	return ResponseEntity.ok(questionSearchResponseDTO);
     }
+    
+    @PostMapping("/question/comment")
+	public ResponseEntity<?> postCommentToAnswer(@RequestBody CommentDTO commentDTO) {
+		CommentDTO createdCommentDTO = questionService.postCommentToQuestion(commentDTO);
+		if(createdCommentDTO == null) return new ResponseEntity<>("Something went wrong", HttpStatus.BAD_REQUEST);
+		return ResponseEntity.status(HttpStatus.CREATED).body(createdCommentDTO);
+	}
 }

@@ -33,7 +33,7 @@ public class User {
 	
 	boolean isAdmin = false;
 	
-	boolean isActive = true;
+	boolean isActive = false;
 	
 	
 	public UserDTO getUserDTO() {

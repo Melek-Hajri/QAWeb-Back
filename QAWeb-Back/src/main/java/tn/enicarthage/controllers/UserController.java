@@ -59,5 +59,11 @@ public class UserController {
         userService.makeAdmin(userId);
         return ResponseEntity.ok().build();
     }
+    
+    @PostMapping("/users/revoke_admin/{userId}") 
+    public ResponseEntity<?> revokeAdmin(@PathVariable Long userId) {
+        userService.revokeAdmin(userId);
+        return ResponseEntity.ok().build();
+    }
 
 }

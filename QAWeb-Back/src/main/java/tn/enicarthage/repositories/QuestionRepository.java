@@ -24,7 +24,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long>{
 	
 	Page<Question> findAllByOrderByVoteCountDesc(Pageable paging);
 	
-	@Query("SELECT q FROM Question q WHERE (q.title LIKE %:searchString% OR :searchString MEMBER OF q.tags)")
-    Page<Question> findByTitleContainingOrTag(@Param("searchString") String searchString, Pageable pageable);
+	@Query("SELECT q FROM Question q WHERE (q.title LIKE %:searchString% OR q.body LIKE %:searchString% OR :searchString MEMBER OF q.tags)")
+	Page<Question> findByTitleContainingOrBodyContainingOrTag(@Param("searchString") String searchString, Pageable pageable);
 
 }

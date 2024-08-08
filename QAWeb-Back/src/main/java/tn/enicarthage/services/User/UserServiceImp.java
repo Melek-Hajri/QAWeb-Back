@@ -165,4 +165,16 @@ public class UserServiceImp implements UserService{
     		
     	}
     }
+
+	@Override
+	public void revokeAdmin(Long userId) {
+		Optional<User> optionalUser = userRepository.findById(userId);
+    	if(optionalUser.isPresent()) {
+    		User user = optionalUser.get();
+    		user.setAdmin(false);
+    		User updatedUser = userRepository.save(user);
+    		
+    	}
+		
+	}
 }

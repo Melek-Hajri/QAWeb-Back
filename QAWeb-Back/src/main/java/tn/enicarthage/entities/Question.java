@@ -65,6 +65,10 @@ public class Question {
 	@JsonIgnore
 	List<Vote> voteList;
 	
+	@OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+	@JsonIgnore
+	List<Comment> commentList;
+	
 	public QuestionDTO getQuestionDTO() {
 		QuestionDTO questionDTO = new QuestionDTO();
 		questionDTO.setId(id);

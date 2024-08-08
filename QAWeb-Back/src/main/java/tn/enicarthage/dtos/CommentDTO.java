@@ -18,6 +18,8 @@ public class CommentDTO {
 	
 	Date createdDate;
 	
+	Long questionId;
+	
 	Long answerId;
 	
 	Long userId;

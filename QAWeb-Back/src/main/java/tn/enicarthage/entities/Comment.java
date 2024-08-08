@@ -34,8 +34,14 @@ public class Comment {
 	
 	Date createdDate;
 	
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "answer_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY, optional = true)
+	@JoinColumn(name = "question_id", nullable = true)
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnore
+	Question question;
+	
+	@ManyToOne(fetch = FetchType.LAZY, optional = true)
+	@JoinColumn(name = "answer_id", nullable = true)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	@JsonIgnore
 	Answer answer;
@@ -51,8 +57,11 @@ public class Comment {
 		commentDTO.setId(id);
 		commentDTO.setBody(body);
 		commentDTO.setCreatedDate(createdDate);
-		commentDTO.setAnswerId(id);
-		commentDTO.setUserId(id);
+		if(question != null)
+			commentDTO.setQuestionId(question.getId());
+		if(answer != null)
+			commentDTO.setAnswerId(answer.getId());
+		commentDTO.setUserId(user.getId());
 		commentDTO.setUsername(user.getName());
 		
 		return commentDTO;

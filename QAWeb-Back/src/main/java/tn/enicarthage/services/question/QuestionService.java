@@ -1,6 +1,7 @@
 package tn.enicarthage.services.question;
 
 import tn.enicarthage.dtos.AllQuestionsResponseDTO;
+import tn.enicarthage.dtos.CommentDTO;
 import tn.enicarthage.dtos.QuestionDTO;
 import tn.enicarthage.dtos.QuestionSearchResponseDTO;
 import tn.enicarthage.dtos.SingleQuestionDTO;
@@ -19,5 +20,7 @@ public interface QuestionService {
 
 	QuestionSearchResponseDTO getHighestVotedQuestions(int pageNum);
 
-	QuestionSearchResponseDTO searchQuestionByTitleAndTag(String query, int pageNum);
+	QuestionSearchResponseDTO searchQuestionByTitleAndTagAndBody(String query, int pageNum);
+
+	CommentDTO postCommentToQuestion(CommentDTO commentDTO);
 }

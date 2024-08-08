@@ -20,11 +20,13 @@ import tn.enicarthage.dtos.QuestionDTO;
 import tn.enicarthage.dtos.QuestionSearchResponseDTO;
 import tn.enicarthage.dtos.SingleQuestionDTO;
 import tn.enicarthage.entities.Answer;
+import tn.enicarthage.entities.Comment;
 import tn.enicarthage.entities.Question;
 import tn.enicarthage.entities.User;
 import tn.enicarthage.entities.Vote;
 import tn.enicarthage.enums.VoteType;
 import tn.enicarthage.repositories.AnswerRepository;
+import tn.enicarthage.repositories.CommentRepository;
 import tn.enicarthage.repositories.ImageRepository;
 import tn.enicarthage.repositories.QuestionRepository;
 import tn.enicarthage.repositories.UserRepository;
@@ -43,6 +45,8 @@ public class QuestionServiceImp implements QuestionService{
 	private final AnswerRepository answerRepository;
 
 	private final ImageRepository imageRepository;
+	
+	private final CommentRepository commentRepository;
 	
 	@Override
 	public QuestionDTO addQuestion(QuestionDTO questionDTO) {
@@ -109,6 +113,13 @@ public class QuestionServiceImp implements QuestionService{
 			singleQuestionDTO.setQuestionDTO(questionDTO);
 			singleQuestionDTO.getQuestionDTO().setFiles(imageRepository.findAllByQuestionId(questionId));
 			
+			List<CommentDTO> questionCommentDTOList = new ArrayList<>();
+			existingQuestion.getCommentList().forEach(comment -> {
+				CommentDTO commentDTO = comment.getCommentDTO();
+				questionCommentDTOList.add(commentDTO);
+			});
+			singleQuestionDTO.setCommentDTOList(questionCommentDTOList);
+			
 			List<Answer> answerList = answerRepository.findAllByQuestionId(questionId);
 			for(Answer answer : answerList) {
 				AnswerDTO answerDTO = answer.getAnswerDTO();
@@ -134,6 +145,11 @@ public class QuestionServiceImp implements QuestionService{
 				answerDTO.setCommentDTOList(commentDTOList);
 			}
 			singleQuestionDTO.setAnswerDTOList(answerDTOList);
+			
+			List<QuestionDTO> similarQuestions = new ArrayList<>();
+			similarQuestions = questionRepository.findAll().stream().map(Question::getQuestionDTO).collect(Collectors.toList());
+			singleQuestionDTO.setSimilarQuestionsDTOList(similarQuestions);
+			
 			return singleQuestionDTO;
 		}
 		return null;
@@ -155,13 +171,13 @@ public class QuestionServiceImp implements QuestionService{
 
 
 	@Override
-	public QuestionSearchResponseDTO searchQuestionByTitleAndTag(String query, int pageNum) {
+	public QuestionSearchResponseDTO searchQuestionByTitleAndTagAndBody(String query, int pageNum) {
 		Pageable pageable = PageRequest.of(pageNum, SEARCH_RESULT_PER_PAGE);
 		Page<Question> questionPage;
-		if(query == null || query.equals("null")) {
+		if(query == null || query.equals("null") || query.equals("")) {
 			questionPage = questionRepository.findAll(pageable);
 		} else {
-			questionPage = questionRepository.findByTitleContainingOrTag(query, pageable);
+			questionPage = questionRepository.findByTitleContainingOrBodyContainingOrTag(query, pageable);
 		}
 		QuestionSearchResponseDTO questionSearchResponseDTO = new QuestionSearchResponseDTO();
 		questionSearchResponseDTO.setQuestionDTOList(questionPage.stream().map(Question::getQuestionDTO).collect(Collectors.toList()));
@@ -197,6 +213,26 @@ public class QuestionServiceImp implements QuestionService{
 	}
 	
 	
+	@Override
+	public CommentDTO postCommentToQuestion(CommentDTO commentDTO) {
+		Optional<Question> optionalQuestion = questionRepository.findById(commentDTO.getQuestionId());
+		Optional<User> optionalUser = userRepository.findById(commentDTO.getUserId());
+		if(optionalQuestion.isPresent() && optionalUser.isPresent()) {
+			Comment comment = new Comment();
+			comment.setBody(commentDTO.getBody());
+			comment.setCreatedDate(new Date());
+			comment.setQuestion(optionalQuestion.get());
+			comment.setUser(optionalUser.get());
+			
+			Comment createdComment = commentRepository.save(comment);
+			
+			CommentDTO createdCommentDTO = new CommentDTO();
+			createdCommentDTO.setId(createdComment.getId());
+			return createdCommentDTO;
+		}
+		
+		return null;
+	}
 	
 
 }

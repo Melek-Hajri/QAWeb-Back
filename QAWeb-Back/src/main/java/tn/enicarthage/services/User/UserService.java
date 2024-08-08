@@ -19,4 +19,6 @@ public interface UserService {
 
 	void activateUser(Long userId);
 
+	void revokeAdmin(Long userId);
+
 }
