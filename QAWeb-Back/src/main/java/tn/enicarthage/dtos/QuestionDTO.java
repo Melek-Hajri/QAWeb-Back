@@ -34,4 +34,6 @@ public class QuestionDTO {
 	List<Image> files;
 	
 	int voted;
+	
+	Double similarityScore; 
 }

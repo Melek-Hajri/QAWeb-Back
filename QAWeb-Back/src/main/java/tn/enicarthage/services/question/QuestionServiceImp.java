@@ -48,6 +48,8 @@ public class QuestionServiceImp implements QuestionService{
 	
 	private final CommentRepository commentRepository;
 	
+	private final SimilarityService similarityService;
+	
 	@Override
 	public QuestionDTO addQuestion(QuestionDTO questionDTO) {
 
@@ -95,65 +97,82 @@ public class QuestionServiceImp implements QuestionService{
 
 	@Override
 	public SingleQuestionDTO getQuestionById(Long questionId, Long userId) {
-		Optional<Question> optionalQuestion = questionRepository.findById(questionId);
-		if(optionalQuestion.isPresent()) {
-			Question existingQuestion = optionalQuestion.get();
-			SingleQuestionDTO singleQuestionDTO = new SingleQuestionDTO();
-			List<AnswerDTO> answerDTOList = new ArrayList<>();
-			Optional<Vote> optionalVote = existingQuestion.getVoteList().stream().filter(vote -> vote.getUser().getId().equals(userId)).findFirst();
-			QuestionDTO questionDTO = existingQuestion.getQuestionDTO();
-			questionDTO.setVoted(0);
-			if(optionalVote.isPresent()) {
-				if(optionalVote.get().getVoteType().equals(VoteType.UPVOTE)) {
-					questionDTO.setVoted(1);
-				} else {
-					questionDTO.setVoted(-1);
-				}
-			}
-			singleQuestionDTO.setQuestionDTO(questionDTO);
-			singleQuestionDTO.getQuestionDTO().setFiles(imageRepository.findAllByQuestionId(questionId));
-			
-			List<CommentDTO> questionCommentDTOList = new ArrayList<>();
-			existingQuestion.getCommentList().forEach(comment -> {
-				CommentDTO commentDTO = comment.getCommentDTO();
-				questionCommentDTOList.add(commentDTO);
-			});
-			singleQuestionDTO.setCommentDTOList(questionCommentDTOList);
-			
-			List<Answer> answerList = answerRepository.findAllByQuestionId(questionId);
-			for(Answer answer : answerList) {
-				AnswerDTO answerDTO = answer.getAnswerDTO();
-				answerDTO.setFiles(imageRepository.findAllByAnswerId(answerDTO.getId()));
-				Optional<Vote> optionalAnswerVote = answer.getVoteList().stream().filter(vote -> vote.getUser().getId().equals(userId)).findFirst();
-				answerDTO.setVoted(0);
-				if(optionalAnswerVote.isPresent()) {
-					if(optionalAnswerVote.get().getVoteType().equals(VoteType.UPVOTE)) {
-						answerDTO.setVoted(1);
-					} else {
-						answerDTO.setVoted(-1);
-					}
-				}
-				
-				
-				answerDTOList.add(answerDTO);
-				
-				List<CommentDTO> commentDTOList = new ArrayList<>();
-				answer.getCommentList().forEach(comment -> {
-					CommentDTO commentDTO = comment.getCommentDTO();
-					commentDTOList.add(commentDTO);
-				});
-				answerDTO.setCommentDTOList(commentDTOList);
-			}
-			singleQuestionDTO.setAnswerDTOList(answerDTOList);
-			
-			List<QuestionDTO> similarQuestions = new ArrayList<>();
-			similarQuestions = questionRepository.findAll().stream().map(Question::getQuestionDTO).collect(Collectors.toList());
-			singleQuestionDTO.setSimilarQuestionsDTOList(similarQuestions);
-			
-			return singleQuestionDTO;
-		}
-		return null;
+	    Optional<Question> optionalQuestion = questionRepository.findById(questionId);
+	    if (optionalQuestion.isPresent()) {
+	        Question existingQuestion = optionalQuestion.get();
+	        SingleQuestionDTO singleQuestionDTO = new SingleQuestionDTO();
+	        List<AnswerDTO> answerDTOList = new ArrayList<>();
+	        Optional<Vote> optionalVote = existingQuestion.getVoteList().stream()
+	                .filter(vote -> vote.getUser().getId().equals(userId))
+	                .findFirst();
+	        QuestionDTO questionDTO = existingQuestion.getQuestionDTO();
+	        questionDTO.setVoted(0);
+	        if (optionalVote.isPresent()) {
+	            if (optionalVote.get().getVoteType().equals(VoteType.UPVOTE)) {
+	                questionDTO.setVoted(1);
+	            } else {
+	                questionDTO.setVoted(-1);
+	            }
+	        }
+	        singleQuestionDTO.setQuestionDTO(questionDTO);
+	        singleQuestionDTO.getQuestionDTO().setFiles(imageRepository.findAllByQuestionId(questionId));
+
+	        List<CommentDTO> questionCommentDTOList = existingQuestion.getCommentList().stream()
+	                .map(Comment::getCommentDTO)
+	                .collect(Collectors.toList());
+	        singleQuestionDTO.setCommentDTOList(questionCommentDTOList);
+
+	        List<Answer> answerList = answerRepository.findAllByQuestionId(questionId);
+	        for (Answer answer : answerList) {
+	            AnswerDTO answerDTO = answer.getAnswerDTO();
+	            answerDTO.setFiles(imageRepository.findAllByAnswerId(answerDTO.getId()));
+	            Optional<Vote> optionalAnswerVote = answer.getVoteList().stream()
+	                    .filter(vote -> vote.getUser().getId().equals(userId))
+	                    .findFirst();
+	            answerDTO.setVoted(0);
+	            if (optionalAnswerVote.isPresent()) {
+	                if (optionalAnswerVote.get().getVoteType().equals(VoteType.UPVOTE)) {
+	                    answerDTO.setVoted(1);
+	                } else {
+	                    answerDTO.setVoted(-1);
+	                }
+	            }
+	            answerDTOList.add(answerDTO);
+
+	            List<CommentDTO> commentDTOList = answer.getCommentList().stream()
+	                    .map(Comment::getCommentDTO)
+	                    .collect(Collectors.toList());
+	            answerDTO.setCommentDTOList(commentDTOList);
+	        }
+	        singleQuestionDTO.setAnswerDTOList(answerDTOList);
+
+	        // Get all questions to compare similarity
+	        List<QuestionDTO> allQuestions = questionRepository.findAll().stream()
+	                .map(Question::getQuestionDTO)
+	                .collect(Collectors.toList());
+
+	        // Determine similarity scores
+	        List<QuestionDTO> similarQuestions = new ArrayList<>();
+	        for (QuestionDTO q : allQuestions) {
+	            if (q.getId() != questionId) {
+	                Double similarityScore = similarityService.getSimilarityScore(questionDTO.getBody(), q.getBody());
+	                if(similarityScore == null) System.out.println("sim is null");
+	                if (similarityScore > 0.7) { // Threshold can be adjusted
+	                    q.setSimilarityScore(similarityScore); // Ensure `QuestionDTO` has this field
+	                    similarQuestions.add(q);
+	                }
+	            }
+	        }
+
+	        // Sort by similarity score (descending order)
+	        similarQuestions.sort((q1, q2) -> q2.getSimilarityScore().compareTo(q1.getSimilarityScore()));
+	        singleQuestionDTO.setSimilarQuestionsDTOList(similarQuestions);
+
+	        return singleQuestionDTO;
+	    }
+	    return null;
 	}
+
 
 
 	@Override
